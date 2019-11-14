@@ -7,7 +7,7 @@ class Solution(private val env: Environment) : Lock<Solution.Node> {
         val my = Node()
         val pred = tail.getAndSet(my)
         if (pred != null) {
-            my.locked.set(true)
+            my.locked.value = true
             pred.next.set(my)
             while (my.locked.get()) {
                 env.park()
@@ -26,7 +26,7 @@ class Solution(private val env: Environment) : Lock<Solution.Node> {
                 }
             }
         }
-        node.next.get()!!.locked.set(false)
+        node.next.get()!!.locked.value = false
         env.unpark(node.thread)
 
     }
