@@ -5,9 +5,9 @@ class Solution(private val env: Environment) : Lock<Solution.Node> {
 
     override fun lock(): Node {
         val my = Node()
+        my.locked.set(true)
         val pred = tail.getAndSet(my)
         if (pred != null) {
-            my.locked.set(true)
             pred.next.set(my)
             while (my.locked.get()) {
                 env.park()
@@ -26,8 +26,8 @@ class Solution(private val env: Environment) : Lock<Solution.Node> {
                 }
             }
         }
-        node.next.get()!!.locked.set(true)
-        env.unpark(node.thread)
+        node.next.get()!!.locked.set(false)
+        env.unpark(node.next.get()!!.thread)
     }
 
     class Node {
