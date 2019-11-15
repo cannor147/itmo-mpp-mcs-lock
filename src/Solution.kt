@@ -1,4 +1,4 @@
-import java.util.concurrent.atomic.*
+import java.util.concurrent.atomic.AtomicReference
 
 class Solution(private val env: Environment) : Lock<Solution.Node> {
     private val tail = AtomicReference<Node?>(null)
@@ -7,7 +7,7 @@ class Solution(private val env: Environment) : Lock<Solution.Node> {
         val my = Node()
         val pred = tail.getAndSet(my)
         if (pred != null) {
-            my.locked.value = true
+            my.locked.set(true)
             pred.next.set(my)
             while (my.locked.get()) {
                 env.park()
@@ -26,9 +26,8 @@ class Solution(private val env: Environment) : Lock<Solution.Node> {
                 }
             }
         }
-        node.next.get()!!.locked.value = false
+        node.next.get()!!.locked.set(true)
         env.unpark(node.thread)
-
     }
 
     class Node {
